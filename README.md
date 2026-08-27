@@ -1,13 +1,48 @@
-# vsbench — metadata filtering vs HNSW in pgvector
+# entity-risk-intelligence
 
-A small benchmark answering one question: **how does metadata filtering interact
-with HNSW vector search in pgvector, and when does pre-filtering beat
-post-filtering?**
+A synthetic **entity risk intelligence** corpus — 200,000 sanctions / export-control
+/ adverse-media style documents about 15,000 fictitious entities — and a benchmark
+of what happens when you try to search it the way a screening analyst actually
+would: semantically, *and* filtered by jurisdiction, topic, date and designation
+status.
 
-Results and the written conclusion live in [RESULTS.md](RESULTS.md).
+The question it answers: **how does metadata filtering interact with HNSW vector
+search in pgvector, and when does pre-filtering beat post-filtering?**
 
-This is a learning exercise, not a product. There is no API, no UI, and no
-reranking — just a corpus, three query strategies, and measurements.
+The short answer is that a metadata filter does not remove a random 9% of your
+corpus — it removes a *correlated* 9%, concentrated exactly where the query was
+looking. In the 1–10% selectivity band, where most real screening filters land,
+both approximate strategies return near-useless results and nothing in the query
+plan warns you. Numbers and the written conclusion are in
+[RESULTS.md](RESULTS.md); [WALKTHROUGH.md](WALKTHROUGH.md) reproduces the whole
+finding in ten minutes of psql.
+
+This is a learning exercise, not a product. There is no API, no UI, no entity
+resolution and no reranking — just a corpus, three query strategies, and
+measurements. The Python package is called `vsbench`.
+
+## What the data looks like
+
+One wide `documents` table. Each row is one risk document about one entity,
+carrying the surface form of the name actually used in that document (canonical
+or alias) plus the metadata a screening filter would key on:
+
+| column | |
+|---|---|
+| `text`, `embedding vector(384)` | the document and its MiniLM embedding |
+| `entity_id`, `entity_name` | the entity, and the surface form used in *this* doc |
+| `jurisdiction` | CN RU HK AE SG TR KZ DE NL US |
+| `topic` | forced labour, export controls, sanctions evasion, military end use, ownership change, maritime, procurement |
+| `sector`, `published` | 2018-01-01 .. 2026-12-31 |
+| `is_designated`, `hops_to_designated` | designation, and graph distance to a designated entity (0–5, 99 = unconnected) |
+| `severity` | latent 0..1 axis derived from `hops_to_designated` |
+
+The 48-query workload in [vsbench/queries.py](vsbench/queries.py) is written in
+analyst language — *"tanker with a 46 hour AIS gap before a ship to ship
+transfer"*, *"five-axis machine tools diverted to a listed end user"*, *"nominee
+director appointed in a third country to obscure control"* — because the point is
+to measure retrieval on questions someone would really ask, against filters
+someone would really apply.
 
 ## Architecture
 
@@ -54,10 +89,14 @@ reaches.** `exact` never touches an index, `post_filter` always uses HNSW, and
 `pre_filter` switches between HNSW and the btrees depending on selectivity —
 that switch is the crossover E2 measures.
 
+The five experiments: **E1** unfiltered ANN vs exact (baseline), **E2** the
+selectivity sweep and the crossover, **E3** post-filter overfetch, **E4**
+`ef_search`, **E5** pgvector 0.8's `hnsw.iterative_scan`.
+
 ## Run it
 
 ```bash
-docker compose up -d
+docker compose up -d          # pgvector/pgvector:pg16 on localhost:5433
 
 uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python \
@@ -77,7 +116,23 @@ second run skips straight to the experiments.
 .venv/bin/python scripts/make_report.py                                # rebuild RESULTS.md only
 ```
 
-## Poke at it by hand
+## Search it like an analyst
+
+`scripts/search.py` is plain-English search over the corpus — no SQL, and it
+prints the entity name, jurisdiction, topic, date and a snippet for each hit.
+It also warns you when a filter starved the ANN walk.
+
+```bash
+.venv/bin/python scripts/search.py "oil tanker going dark near Fujairah"
+.venv/bin/python scripts/search.py "shell company in a free zone" --jurisdiction AE --since 2025
+.venv/bin/python scripts/search.py "drone components" --topic military_end_use --compare
+```
+
+`--compare` runs naive pre-filter, pre-filter with `hnsw.iterative_scan`, and
+exact search side by side — the fastest way to *see* the finding on one query.
+Omit the query for an interactive prompt (the model loads once).
+
+## Poke at the query plans
 
 ```bash
 # unfiltered ANN — should show documents_embedding_hnsw
@@ -118,10 +173,14 @@ LIMIT 10;
 | `vsbench/corpus.py` | 15k entities, 200k documents |
 | `vsbench/embedder.py` | `Embedder` protocol, MiniLM implementation, disk cache |
 | `vsbench/db.py` | connect, binary COPY, index build |
+| `vsbench/queries.py` | the 48 analyst-style queries every experiment shares |
 | `vsbench/filters.py` | builds the selectivity ladder by counting candidates |
 | `vsbench/strategies.py` | `post_filter` / `pre_filter` / `exact`, plus EXPLAIN |
 | `vsbench/experiments.py` | E1–E5 and the recall/latency metrics |
 | `vsbench/findings.py` | the hand-written prose in RESULTS.md |
+| `scripts/run_all.py` | generate → embed → load → index → run E1–E5 |
+| `scripts/search.py` | plain-English search over the corpus |
+| `scripts/explain_query.py` | EXPLAIN one query under one strategy |
 | `results/` | CSV per experiment, `meta.json`, `plans/*.txt` |
 
 ## The synthetic corpus
@@ -148,5 +207,9 @@ Entity names carry realistic alias noise: transliteration variants (kh↔h, y↔
 ts↔c), JSC/LLC/PJSC legal-form equivalents, suffix-stripped and
 whitespace-removed forms, initialisms, and for ~15% a "formerly known as"
 pointing at *another* entity's name pool. ~5% of entity names are one-token
-near-collisions with another entity. Everything is fictitious.
-# entity-risk-intelligence
+near-collisions with another entity.
+
+**Everything in this repository is fictitious.** The names, entities, documents,
+designations and relationships are generated; the *shapes* are modelled on
+publicly documented patterns so the retrieval problem is realistic. Nothing here
+is a claim about any real person, company or vessel.
