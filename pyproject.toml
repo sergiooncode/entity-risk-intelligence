@@ -1,0 +1,14 @@
+[project]
+name = "vsbench"
+version = "0.1.0"
+description = "How metadata filtering interacts with HNSW vector search in pgvector"
+requires-python = ">=3.11"
+dependencies = [
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3.6",
+    "numpy>=1.26",
+    "sentence-transformers>=3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["vsbench*"]

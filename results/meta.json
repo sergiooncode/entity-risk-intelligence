@@ -1,0 +1,56 @@
+{
+  "n_docs": 200000,
+  "n_entities": 15000,
+  "k": 10,
+  "reps": 3,
+  "corpus_seconds": 7.7,
+  "embedder": "all-MiniLM-L6-v2",
+  "embed_device": "mps",
+  "embed_seconds": 436.9,
+  "pgvector_version": "0.8.6",
+  "server_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+  "ingest_seconds": 21.0,
+  "index_build_seconds": 67.5,
+  "sizes": {
+    "documents_embedding_hnsw": "391 MB",
+    "documents_jurisdiction_idx": "1368 kB",
+    "documents_pkey": "4408 kB",
+    "documents_published_idx": "1408 kB",
+    "documents_topic_idx": "1408 kB",
+    "documents (table)": "193 MB"
+  },
+  "baseline_scan": "hnsw",
+  "ladder": [
+    {
+      "label": "50%",
+      "sql": "jurisdiction IN ('CN', 'RU', 'HK')",
+      "n_rows": 95433,
+      "selectivity": 0.477165
+    },
+    {
+      "label": "10%",
+      "sql": "topic = 'military_end_use'",
+      "n_rows": 18285,
+      "selectivity": 0.091425
+    },
+    {
+      "label": "1%",
+      "sql": "jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01'",
+      "n_rows": 1973,
+      "selectivity": 0.009865
+    },
+    {
+      "label": "0.1%",
+      "sql": "jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated",
+      "n_rows": 200,
+      "selectivity": 0.001
+    },
+    {
+      "label": "0.01%",
+      "sql": "jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01'",
+      "n_rows": 20,
+      "selectivity": 0.0001
+    }
+  ],
+  "experiment_seconds": 181.1
+}

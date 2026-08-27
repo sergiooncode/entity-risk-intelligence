@@ -1,0 +1,6 @@
+filter_label,filter_sql,selectivity_pct,overfetch,fetch_k,ef_search_used,recall_mean,recall_p10,recall_min,starved_frac,p50_ms,p95_ms,scan
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',0.9865,1,10,40,0.0021,0.0,0.0,1.0,1.916,9.999,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',0.9865,5,50,50,0.0312,0.0,0.0,1.0,2.044,4.078,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',0.9865,10,100,100,0.0563,0.0,0.0,0.9792,3.295,9.127,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',0.9865,50,500,500,0.1938,0.0,0.0,0.7917,13.339,28.152,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',0.9865,100,1000,1000,0.2354,0.0,0.0,0.7917,22.398,30.436,hnsw

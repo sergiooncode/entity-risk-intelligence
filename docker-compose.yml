@@ -1,0 +1,62 @@
+# Pinned so the compose project (and therefore the pgdata volume) does not
+# change identity if the directory is renamed.
+name: vector-search
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: vsbench-pg
+    environment:
+      POSTGRES_USER: vsbench
+      POSTGRES_PASSWORD: vsbench
+      POSTGRES_DB: vsbench
+      # Deterministic C collation keeps text comparisons cheap and stable.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Parallel HNSW builds allocate maintenance_work_mem per worker in a
+    # dynamic shared memory segment. With maintenance_work_mem=2GB and 4
+    # workers, 1gb of /dev/shm is not enough and CREATE INDEX fails with
+    # "could not resize shared memory segment".
+    shm_size: 4gb
+    # Tuning notes (host: 8 cores / 16 GB):
+    #   shared_buffers 2GB          -> the 200k x 384 table (~350MB) plus its HNSW
+    #                                  index (~700MB) fit in cache, so we measure
+    #                                  index traversal and not disk I/O.
+    #   maintenance_work_mem 2GB    -> HNSW build stays in memory. If the build
+    #                                  spills to disk pgvector logs a warning and
+    #                                  the graph quality drops.
+    #   jit off                     -> JIT compilation adds 5-20ms of noise to
+    #                                  short queries, which is most of our signal.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=2GB
+      - -c
+      - maintenance_work_mem=2GB
+      - -c
+      - work_mem=64MB
+      - -c
+      - effective_cache_size=6GB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - max_parallel_maintenance_workers=4
+      - -c
+      - max_parallel_workers_per_gather=4
+      - -c
+      - max_parallel_workers=8
+      - -c
+      - jit=off
+      - -c
+      - track_io_timing=on
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vsbench -d vsbench"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:

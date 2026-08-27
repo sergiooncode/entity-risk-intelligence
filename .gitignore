@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Regenerable: corpus JSONL (~250 MB) and embedding .npy (~300 MB).
+cache/
+
+# CSVs, meta.json and plans are the benchmark output and *are* checked in;
+# only the raw plan dumps get large.
+results/plans/*.txt

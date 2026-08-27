@@ -1,0 +1,16 @@
+filter_label,filter_sql,n_rows,selectivity_pct,strategy,recall_mean,recall_p10,recall_min,starved_frac,p50_ms,p95_ms,scan
+50%,"jurisdiction IN ('CN', 'RU', 'HK')",95433,47.7165,post_filter 10x,0.9104,0.7,0.6,0.0208,4.365,30.796,hnsw
+50%,"jurisdiction IN ('CN', 'RU', 'HK')",95433,47.7165,pre_filter,0.7646,0.4,0.0,0.3333,1.456,4.453,hnsw
+50%,"jurisdiction IN ('CN', 'RU', 'HK')",95433,47.7165,exact,1.0,1.0,1.0,0.0,100.529,164.012,seq
+10%,topic = 'military_end_use',18285,9.1425,post_filter 10x,0.125,0.0,0.0,0.875,4.213,14.366,hnsw
+10%,topic = 'military_end_use',18285,9.1425,pre_filter,0.1229,0.0,0.0,0.875,1.21,2.328,hnsw
+10%,topic = 'military_end_use',18285,9.1425,exact,1.0,1.0,1.0,0.0,45.327,56.442,seq
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,post_filter 10x,0.0563,0.0,0.0,0.9792,4.046,20.582,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,pre_filter,0.025,0.0,0.0,1.0,1.329,2.552,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,exact,1.0,1.0,1.0,0.0,30.713,47.045,seq
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,post_filter 10x,0.0042,0.0,0.0,1.0,3.425,15.864,hnsw
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,pre_filter,1.0,1.0,1.0,0.0,9.157,11.941,bitmap
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,exact,1.0,1.0,1.0,0.0,26.102,30.943,seq
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,post_filter 10x,0.0021,0.0,0.0,1.0,2.691,8.971,hnsw
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,pre_filter,1.0,1.0,1.0,0.0,4.741,5.874,bitmap
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,exact,1.0,1.0,1.0,0.0,27.085,38.58,seq

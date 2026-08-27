@@ -1,0 +1,9 @@
+strategy,ef_search,k,recall_mean,recall_p10,recall_min,starved_frac,p50_ms,p95_ms,scan
+"ann (pre_filter, no WHERE)",40,10,0.8729,0.7,0.0,0.0,1.786,15.171,hnsw
+"ann (pre_filter, no WHERE)",40,100,0.3946,0.4,0.14,1.0,1.774,3.281,hnsw
+"ann (pre_filter, no WHERE)",100,10,0.9625,0.9,0.7,0.0,4.022,10.555,hnsw
+"ann (pre_filter, no WHERE)",100,100,0.8712,0.7,0.54,0.0,3.744,6.1,hnsw
+"ann (pre_filter, no WHERE)",400,10,0.9979,1.0,0.9,0.0,11.038,23.159,hnsw
+"ann (pre_filter, no WHERE)",400,100,0.9685,0.92,0.78,0.0,9.884,14.991,hnsw
+exact (brute force),-,10,1.0,1.0,1.0,0.0,176.643,262.639,seq
+exact (brute force),-,100,1.0,1.0,1.0,0.0,171.019,231.045,seq

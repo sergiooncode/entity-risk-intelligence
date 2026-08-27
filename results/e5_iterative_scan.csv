@@ -1,0 +1,10 @@
+filter_label,filter_sql,n_rows,selectivity_pct,iterative_scan,recall_mean,recall_p10,recall_min,starved_frac,p50_ms,p95_ms,scan
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,off,0.025,0.0,0.0,1.0,1.428,3.077,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,relaxed_order,0.4438,0.1,0.0,0.0417,49.017,76.985,hnsw
+1%,jurisdiction = 'HK' AND topic = 'sanctions_evasion' AND published >= DATE '2025-01-01',1973,0.9865,strict_order,0.3979,0.1,0.0,0.0417,46.1,68.829,hnsw
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,off,1.0,1.0,1.0,0.0,9.719,14.454,bitmap
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,relaxed_order,1.0,1.0,1.0,0.0,9.467,14.014,bitmap
+0.1%,jurisdiction = 'CN' AND topic = 'military_end_use' AND published >= DATE '2024-01-01' AND is_designated,200,0.1,strict_order,1.0,1.0,1.0,0.0,10.55,16.45,bitmap
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,off,1.0,1.0,1.0,0.0,5.292,17.808,bitmap
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,relaxed_order,1.0,1.0,1.0,0.0,5.6,9.485,bitmap
+0.01%,jurisdiction = 'TR' AND topic = 'forced_labour' AND published >= DATE '2025-01-01',20,0.01,strict_order,1.0,1.0,1.0,0.0,5.528,8.819,bitmap
